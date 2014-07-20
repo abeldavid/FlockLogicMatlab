@@ -5618,15 +5618,15 @@ end
        dir_node2(:,j) = averaging(dir_node(:,j),delay,1,1);
     end
         
-    %{
+    
  figure(1)   
-    plot(start_frame:end_frame-delay, dir_center)
-  
+
+    plot(start_frame:end_frame-delay, dir_center(1:end_frame-start_frame+1-delay)) 
     colors = jet(numberOfNodes);
     
  figure(2)
     for j=1:numberOfNodes
-        plot(start_frame:end_frame-delay, dir_node2(:,j), 'Color', colors(j,:))
+        plot(start_frame:end_frame-delay, dir_node2(1:end_frame-start_frame+1-delay,j), 'Color', colors(j,:))
         hold on
     end
       %}  
@@ -7077,9 +7077,9 @@ ub = size(adj,1);
     [Pol_norm_avg, ignore, ignore, ignore, ignore] = averaging(Pol_norm, 20, 1, 1);
     [angular_m_avg, ignore, ignore, ignore, ignore] = averaging(angular_m, 20, 1, 1);
  
- save('D:\Work stuff\FlockLogic\version 9\W4_SG1.mat', 'W_avg')
- save('D:\Work stuff\FlockLogic\version 9\Pol_norm_SG1.mat', 'Pol_norm_avg')
- save('D:\Work stuff\FlockLogic\version 9\angular_m_SG1.mat', 'angular_m_avg')
+ save('D:\WorkStuff\FlockLogic\version 11\W4_SG1.mat', 'W_avg')
+ save('D:\WorkStuff\FlockLogic\version 11\Pol_norm_SG1.mat', 'Pol_norm_avg')
+ save('D:\WorkStuff\FlockLogic\version 11\angular_m_SG1.mat', 'angular_m_avg')
  
     figure(1)
     plot(lb:ub, W, 'r', lb:ub, W_avg, 'b')
@@ -7272,7 +7272,7 @@ switch answer2
         plot(start_frame:end_frame, moments(:,1), 'b', 'LineWidth', 0.8);
         hold on;
         for i=1:size(nodes,2)
-           plot(start_frame:end_frame, r(start_frame:end_frame, nodes(i)), 'r', 'LineWidth', 0.7);
+           plot(start_frame:end_frame, r(1:end_frame-start_frame+1, nodes(i)), 'r', 'LineWidth', 0.7);
            hold on;
         end
         
@@ -7284,7 +7284,7 @@ switch answer2
       disp('Average distances to center are:');  
       for i=1:size(nodes,2)
         disp(nodes(i))  
-        disp(sum(r(start_frame:end_frame, nodes(i)))/(end_frame-start_frame+1))
+        disp(sum(r(1:end_frame-start_frame+1, nodes(i)))/(end_frame-start_frame+1))
         distToCenter_avg(i) = mean(r(:, nodes(i)));
       end
       
@@ -7332,7 +7332,7 @@ switch answer2
    
     figure(1)
    for j=1:size(nodes,2) 
-    plot(start_frame:end_frame, distToOthers(j,start_frame:end_frame), 'r', start_frame:end_frame, r(start_frame:end_frame,j), 'b');
+    plot(start_frame:end_frame, distToOthers(j,1:end_frame-start_frame+1), 'r', start_frame:end_frame, r(1:end_frame-start_frame+1,j), 'b');
     hold on;
    end
    
@@ -7380,7 +7380,7 @@ switch answer2
       
       figure(1);
       for j=1:size(nodes,2)
-          plot(start_frame:end_frame, dist2(:,j));
+          plot(start_frame:end_frame, dist2(start_frame:end_frame,j));
           hold on;
       end
       
@@ -7422,7 +7422,7 @@ switch answer2
         
         figure(1)
         for j=1:size(nodes,2)
-            plot(start_frame:end_frame, distNeigh(j,:))
+            plot(start_frame:end_frame, distNeigh(j,start_frame:end_frame))
             hold on;
         end
 end
@@ -7540,9 +7540,10 @@ else
     
     %form groups and display
     for i=start_frame:end_frame  
+        if s>=2
         if sum(squeeze(group(i-start_frame+1,2,:)))~=0
-            i
             squeeze(group(i-start_frame+1,:,:))
+        end
         end
     end
     
@@ -7577,7 +7578,7 @@ for i=max(lb,start_frame-tau):min(ub,end_frame+tau)
             dim = 2;
             positionMatrix(i,:,:) = horzcat(x,y);
 end
-
+start_frame
 for i=start_frame:end_frame
     for o=1:numberOfNodes-1
         for s=o+1:numberOfNodes
@@ -7787,17 +7788,20 @@ function [theta0, theta, theta2, theta3, theta4, theta_avg, theta_avg2] = direct
     [theta4(:,j), ignore, ignore, theta_avg2(:,j), ignore] = averaging(theta2(:,j), delay2, 1, 1);
    end 
 
+   S = [{'1'},{'2'},{'3'},{'4'}, {'5'}, {'6'}, {'7'}, {'8'}, {'9'}, {'10'}, {'11'}, {'12'}, {'13'}];
+   nodes = listdlg('ListString', S, 'Name', 'Node status & correlations', 'PromptString', 'Select the node(s)');
+
    %plot all 4 options of angles
   figure(1) 
-    plot(start_frame:end_frame, theta0(:,1), 'y-*')
+    plot(start_frame:end_frame, theta0(:,nodes(1)), 'y-*')
     hold on
-    plot(start_frame:end_frame, theta(:,1), 'b-*')
+    plot(start_frame:end_frame, theta(:,nodes(1)), 'b-*')
     hold on
-    plot(start_frame:end_frame, theta2(:,1), 'r-*')
+    plot(start_frame:end_frame, theta2(:,nodes(1)), 'r-*')
     hold on
-    plot(start_frame:end_frame, theta3(:,1), 'g-*')
+    plot(start_frame:end_frame, theta3(:,nodes(1)), 'g-*')
     hold on
-    plot(start_frame:end_frame, theta4(:,1), 'k-*')
+    plot(start_frame:end_frame, theta4(:,nodes(1)), 'k-*')
     
 end
 
@@ -7880,7 +7884,7 @@ end
 %long, at pasting everything together
 function [nodeStatus_IG, nodeStatus_avg2_IG, degree_in, degree_out] = nodeStatusIG(handles, hObject, start_frame, end_frame)
 
-name = 'D:\Work stuff\FlockLogic\version 8\IG\.mat files\IG_25-40.mat';
+name = 'D:\WorkStuff\FlockLogic\version 8\IG\.mat files\IG_25-40.mat';
 load(name);
 
 %Interaction2 is matrix of who is following who
@@ -7895,7 +7899,7 @@ cnt = 2;
 
 %doing the same thing for all other frames
 for i=40:20:920
-  name = ['D:\Work stuff\FlockLogic\version 8\IG\.mat files\IG_', num2str(i), '-', num2str(i+20)];
+  name = ['D:\WorkStuff\FlockLogic\version 8\IG\.mat files\IG_', num2str(i), '-', num2str(i+20)];
   load(name);
   
   for j=i:i+20
@@ -7908,7 +7912,7 @@ for i=40:20:920
   
 end
 
-name = 'D:\Work stuff\FlockLogic\version 8\IG\.mat files\IG_940-953.mat';
+name = 'D:\WorkStuff\FlockLogic\version 8\IG\.mat files\IG_940-953.mat';
 load(name);
 
 %compute everyting for the last frames
@@ -8779,6 +8783,7 @@ for o=1:numberOfNodes
     r_0(o) = fminsearch(@(x) pdf_hardBall(x, positionMatrix, density, lb, ub, o, numberOfNodes), [0.1]);
 end
 
+r_0
 end
 
 function Miscellaneous_pushbutton_Callback(hObject, ~, handles)
@@ -10377,8 +10382,8 @@ function group_properties(hObject, handles)
     cnt2 = 1;
    
     for j=1:numberOfNodes
-     %for i = start_frame:end_frame-1    
-      for i = start_frame:start_frame+100-1
+     for i = start_frame:end_frame-1-20    
+      %for i = start_frame:start_frame+100-1
        HugeMatrix(cnt,cnt2) = j;
        cnt2 = cnt2+1;
        HugeMatrix(cnt, cnt2) = Distance2(i-start_frame+1, j);
@@ -10458,12 +10463,12 @@ function group_properties(hObject, handles)
     figure(4)
     imagesc(W)
     
-    diffusion_map(W, D, A)
+    diffusion_map(W, D, A, start_frame, end_frame)
     
 end
 
-%a way of figuring out the structure of the data
-function diffusion_map(W, D, A)
+%a way of figuring out the structure of the data - look up diffusion map
+function diffusion_map(W, D, A, start_frame, end_frame)
 
 colors = jet(13);
 
@@ -10472,17 +10477,12 @@ n = length(W);
 L = D-A;
 [V, E] = eigs(A,130);
 
-V
-E
-size(V)
-size(E)
-
 t=1;
 D_map = [];
 cnt=1;
 for i=1:13
   for j=1:10 
-    D_map = [D_map; E(cnt,cnt)^t*V((i-1)*100+j,:)];
+    D_map = [D_map; E(cnt,cnt)^t*V((i-1)*(end_frame-start_frame-1-20)+j,:)];
     cnt = cnt+1;
   end
 end
